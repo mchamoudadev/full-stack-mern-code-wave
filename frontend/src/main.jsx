@@ -8,6 +8,9 @@ import LoginPage from './pages/LoginPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 
 import { Toaster } from 'react-hot-toast';
+import { UserProvider } from './hooks/useUser.jsx';
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -33,7 +36,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Toaster />
-    <RouterProvider router={router} />
+    <UserProvider>
+      <Toaster />
+      <RouterProvider router={router} />
+    </UserProvider>
+
   </React.StrictMode>,
 );

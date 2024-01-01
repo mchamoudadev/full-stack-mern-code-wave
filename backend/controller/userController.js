@@ -1,4 +1,6 @@
+import { JWT_SECRET } from '../config/config.js';
 import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 
 
 export const registerUser = async (req, res) => {
@@ -42,6 +44,50 @@ export const registerUser = async (req, res) => {
     } catch (err) {
         console.log("error at registerUser", err.message);
         res.send("something went wrong" + err.message);
+    }
+
+
+};
+
+export const loginUser = async (req, res) => {
+
+    try {
+
+        const { email, password } = req.body;
+
+        const isUserExists = await User.findOne({ email: email.toLowerCase() }).select("+password");
+
+        if (!isUserExists) {
+            return res.status(400).send("Invalid Email please provide a valid email");
+        }
+
+        // password checking
+
+        const isPasswordCorrect = await isUserExists.comparePassword(password);
+
+        if (!isPasswordCorrect) {
+            return res.status(400).send("Incorrect password");
+        }
+
+        // token generation
+
+        const expiresIn = 7 * 24 * 60 * 60; // 7 days
+
+        const token = jwt.sign({ _id: isUserExists._id }, JWT_SECRET, { expiresIn });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            maxAge: expiresIn * 1000
+        });
+
+        isUserExists.password = undefined;
+
+        res.status(200).send({ ...isUserExists.toJSON(), expiresIn });
+
+    } catch (err) {
+        console.log("error at loginUser", err);
+        res.status(400).send(err.message);
     }
 
 

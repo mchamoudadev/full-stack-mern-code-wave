@@ -17,23 +17,23 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../hooks/useUser';
 
-export default function Register() {
+export default function Login() {
 
     const [formData, setFormData] = useState({
-        username: "",
         email: "",
         password: "",
     });
 
-    const [loading, setLoading] = useState(false);
-
-    const navigate = useNavigate();
-
-    const { user } = useUser();
+    const { login, user } = useUser();
 
     useEffect(() => {
         if (user) navigate('/');
     }, [user]);
+
+
+    const [loading, setLoading] = useState(false);
+
+    const navigate = useNavigate();
 
 
     const handleInputChange = (event) => {
@@ -51,11 +51,12 @@ export default function Register() {
 
         try {
 
-            const { data } = await axios.post('/api/user/register-user', formData);
+            const { data } = await axios.post('/api/user/login-user', formData);
             console.log(data);
-            toast.success("successfully registered");
+            toast.success("successfully login");
             setLoading(false);
-            navigate('/login');
+            login(data, data.expiresIn);
+            navigate('/');
         } catch (e) {
             setLoading(false);
             toast.error(e.response.data);
@@ -64,23 +65,17 @@ export default function Register() {
 
     };
 
-
     return (
         <div className='w-full'>
             <Card>
                 <CardHeader>
-                    <CardTitle>Register With Your Info</CardTitle>
-                    <CardDescription>Register With Your Info</CardDescription>
+                    <CardTitle>Login With Your Info</CardTitle>
+                    <CardDescription>Login With Your Info</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit}>
                         <div className="grid w-full items-center gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                                <Label htmlFor="username">Username</Label>
-                                <Input
-                                    onChange={handleInputChange}
-                                    id="username" placeholder="Enter Your Username" />
-                            </div>
+
                             <div className="flex flex-col space-y-1.5">
                                 <Label htmlFor="email">Email</Label>
                                 <Input
@@ -95,7 +90,7 @@ export default function Register() {
                                     id="password" placeholder="Enter Your Password" />
                             </div>
                             <div className="flex flex-col space-y-1.5">
-                                <Button>{loading ? "Registering..." : "register"}</Button>
+                                <Button>{loading ? "Login..." : "Login"}</Button>
                             </div>
 
                         </div>
